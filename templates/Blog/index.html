@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block body %}
+
+    <h2>All Blogs</h2>
+
+    {% for blog in blogs %}
+    <a href="{% url 'blog:single_blog' slug=blog.slug %}"><p>{{ blog.blog_title }}</p></a>
+    {% endfor %}
+
+{% endblock %}

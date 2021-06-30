@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Edit Comment {% endblock %}
+
+{% block body %}
+
+    <h4>Edit Comment</h4>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <form method="POST">
+                {{ form|crispy }}
+                {% csrf_token %}
+        
+                <button type="submit" class="btn btn-primary btn-sm">Update Comment</button>
+                <a href="{{ url }}" class="btn btn-info btn-sm">Cancel</a>
+            </form>
+        </div>
+        <div class="col-sm-6">
+            <a href="{% url 'blog:delete_comment' pk=pk %}" class="btn btn-danger btn-sm">Delete Comment</a>
+        </div>
+    </div>
+
+{% endblock %}

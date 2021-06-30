@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load custom_filter %}
+
+{% block title %} {{blog.blog_title}} {% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-sm-6">
+            <img src="/media/{{ blog.post_image }}" alt="" width="100%">
+        </div>
+        <div class="col-sm-6">
+            <h2>{{ blog.blog_title }}</h2>
+            <h6>Published : {{ blog.publish_date }}</h6>
+            <h4>Author : {{ blog.blogger.first_name }} {{ blog.blogger.last_name }} <a style="font-size: small" href="{% url 'blog:profile' pk=blog.blogger.pk %}">(@{{ blog.blogger }})</a></h4>
+            <br>
+            {% if blog.blogger.username == user.username %}
+            <a href="{% url 'blog:update' slug=blog.slug %}" class="btn btn-primary btn-sm">Update Blog</a>
+            <a href="{% url 'blog:delete' slug=blog.slug %}" class="btn btn-danger btn-sm">Delete Blog</a>
+            {% endif %}
+        </div>
+    </div>
+    <br>
+    <h6>{{blog.blog_like.count}} Likes | {{blog.blog_comment.count}} Comments</h6>
+    <br>
+    <p>{{ blog.blog_post|linebreaks }}</p>
+    {% if blog.update_date != blog.publish_date %}
+    <p>Last Updated : {{ blog.update_date }}</p>
+    {% endif %}
+    <br>
+    <br>
+
+    <p>{{ blog.blog_like.count }} likes</p>
+
+    {% if user.is_authenticated %}
+    
+    {% if user.pk in blog|blog_likers %}
+    <a href="{% url 'blog:unlike' pk=blog.pk %}" class="btn btn-primary btn-sm">Unlike</a>
+    {% else %}
+    <a href="{% url 'blog:like' pk=blog.pk %}" class="btn btn-primary btn-sm">Like</a>
+    {% endif %}
+
+    {% endif %}
+    
+    <hr>
+    <br>
+    <div class="row">
+        <div class="col-sm-6">
+            {% for comment in blog.blog_comment.all %}
+            <hr>
+            <p><i><a href="{% url 'blog:profile' pk=comment.commentor.pk %}">@{{ comment.commentor }}</a></i></p>
+            <p>{{ comment.comment|linebreaks }}</p>
+            <h6>Commemted on : {{ comment.comment_date }}</h6>
+            
+            <p>{{ comment.comment_like.count }} likes</p>
+            
+            {% if user.is_authenticated %}
+            
+            {% if user.pk in comment|comment_likers %}
+            <a href="{% url 'blog:comment_unlike' pk=comment.pk %}" class="btn btn-primary btn-sm">Unlike</a>
+            {% else %}
+            <a href="{% url 'blog:comment_like' pk=comment.pk %}" class="btn btn-primary btn-sm">Like</a>
+            {% endif %}
+            {% if comment.commentor == user %}
+            <a href="{% url 'blog:edit_comment' pk=comment.pk %}" class="btn btn-warning btn-sm">Edit Comment</a>
+            {% endif %}
+            
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="col-sm-6">
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'blog:comment' pk=blog.pk %}">
+                {{ form|crispy }}
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-primary">Comment</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    <br>
+    <br>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %} {{blogger.first_name}} {{blogger.last_name}} {% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-sm-3 align-items-center">
+            {% if blogger.user_profile.profile_pic %}
+            <img class="rounded-circle" src="/media/{{ blogger.user_profile.profile_pic }}" alt="" width="200px" height="200px">
+            {% else %}
+            <img class="rounded-circle" src="/media/profile_pics/pfp.jpg" alt="" width="200px" height="200px">
+            {% endif %}
+            <br>
+            <br>
+            {% if blogger.pk == user.pk %}
+            <a href="{% url 'login:change_pfp' %}" class="btn btn-info btn-sm">Change Profile Image</a>
+            {% endif %}
+        </div>
+        
+        <div class="col-sm-9 d-flex align-items-center flex-column">
+            <div class="p-2"><h6>Name : <span style="font-weight: 400;">{{ blogger.first_name }} {{ blogger.last_name }}</span></h6></div>
+            <div class="p-2"><span><a href="">@{{ blogger.username }}</a></span></div>
+            <div class="p-2"><h6>Email Address : <i style="font-weight: 400;">{{ blogger.email }}</i> </h6></div>
+            <div class="p-2"><h5>Bio :</h5></div>
+            <div class="p-2">{{ blogger.user_profile.bio }}</div>
+            <br>
+            {% if blogger.pk == user.pk %}
+            <div class="p-2">
+                <a href="{% url 'login:update' %}" class="btn btn-primary btn-sm p-2">Update Profile</a>
+                <a href="{% url 'login:change_pass' %}" class="btn btn-warning btn-sm p-2">Change Password</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <br>
+    <hr>
+    <br>
+    <br>
+
+    {% for blog in blogger.blogs.all %}
+    <a href="{% url 'blog:single_blog' slug=blog.slug %}">
+        <img src="/media/{{ blog.post_image }}" alt="" width="360px">
+        <h5>{{ blog.blog_title }}</h5>
+    </a>
+    <br>
+    {% endfor %}
+
+{% endblock %}
