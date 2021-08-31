@@ -41,11 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'Login',
     'Blog',
+    
     'crispy_forms',
     'django_cleanup.apps.CleanupConfig',
-    
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -141,3 +144,24 @@ MEDIA_ROOT = MEDIA_DIR
 #  Login url
 
 LOGIN_URL = '/account/login/'
+
+
+# Celery configs
+
+CELERY_BROKER_URL = 'localhost'
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+
+
+# Rest Framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        ],
+    'DEFAULT_PERMISSION_CLASSES' : [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        ],
+    'DEFAULT_PAGINATION_CLASS' : 'DjangoBlog.apps.custom_pagination.CustomPagination',
+    'PAGE_SIZE' : 3,
+}

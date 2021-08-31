@@ -8,6 +8,7 @@ from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from django.views.generic.edit import DeleteView, FormMixin
 from .models import Blog, Comment, BlogLike, CommentLike
 from .forms import CommentForm
+from .tasks import comment
 import uuid
 import re
 
@@ -51,13 +52,9 @@ class WriteBlog(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        blog = form.save(commit=False)
-        blog.blogger = self.request.user
-        title = blog.blog_title
-        title = re.sub('[^0-9a-zA-Z\s]+', '', title)
-        blog.slug = title.replace(' ', '-') + '-' + str(uuid.uuid4())
-        blog.save()
-        return redirect('blog:single_blog', slug=blog.slug)
+        super().form_valid(form)
+        obj = self.get_object()
+        return redirect('blog:single_blog', slug=obj.slug)
 
 class ViewBlog(DetailView):
     model = Blog
@@ -91,14 +88,9 @@ class UpdateBlog(LoginRequiredMixin, UpdateView):
         return super(UpdateBlog, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        blog = form.save(commit=False)
-        object = Blog.objects.get(pk=self.object.pk)
-        if blog.blog_title != object.blog_title:
-            title = blog.blog_title
-            title = re.sub('[^0-9a-zA-Z\s]+', '', title)
-            blog.slug = title.replace(' ', '-') + '-' + str(uuid.uuid4())
-        blog.save()
-        return redirect('blog:single_blog', slug=blog.slug)
+        super().form_valid(form)
+        obj = self.get_object()
+        return redirect('blog:single_blog', slug=obj.slug)
 
 class DeleteBlog(LoginRequiredMixin, DeleteView):
     model = Blog
@@ -115,16 +107,13 @@ class DeleteBlog(LoginRequiredMixin, DeleteView):
 @login_required
 def commented(req, pk):
     if req.method == 'POST':
-        form = CommentForm(req.POST)
-        blog = Blog.objects.get(pk=pk)
+        data = dict(req.POST)
+        print(req.POST)
+        print(data)
+        user = req.user.pk
+        comment.delay(data, user, pk)
 
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.commentor = req.user
-            comment.blog = blog
-            comment.save()
-
-    return redirect('blog:single_blog', slug=blog.slug)
+    return redirect(req.META.get('HTTP_REFERER'))
 
 @login_required
 def like_blog(req, pk):

@@ -1,21 +1,34 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.deletion import CASCADE
-from django.db.models.signals import post_init
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+
+import re
+import uuid
 
 # Create your models here.
 
 class Blog(models.Model):
-    blogger = models.ForeignKey(User, on_delete = models.CASCADE, related_name = 'blogs')
+    blogger = models.ForeignKey(User, null=True, on_delete = models.CASCADE, related_name = 'blogs')
     blog_title = models.CharField(max_length=264, verbose_name='Blog Title')
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, null=True)
     blog_post = models.TextField(max_length=10000, verbose_name="Blog Content")
     post_image = models.ImageField(upload_to='blog_images', blank=True, verbose_name='Image')
     publish_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
 
+    _og_title = None
+
     def __str__(self):
         return self.blog_title
+
+    def get_likers(self):
+        likes = self.blog_like.all()
+        return [like.liker for like in likes]
+
+    def get_likes(self):
+        return self.blog_like.count()
 
     class Meta:
         ordering = ('-publish_date',)
@@ -49,3 +62,12 @@ class CommentLike(models.Model):
 
     def __str__(self):
         return self.liker.username
+
+
+@receiver(pre_save, sender=Blog)
+def slugit(sender, instance, **kwargs):
+    if instance.blog_title != instance._og_title:
+        title = instance.blog_title
+        title = re.sub('[^0-9a-zA-Z\s]+', '', title)
+        instance.slug = title.replace(' ', '-') + '-' + str(uuid.uuid4())
+        instance._og_title = instance.blog_title

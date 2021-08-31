@@ -24,6 +24,10 @@ urlpatterns = [
     path('account/', include('Login.urls')),
     path('blog/', include('Blog.urls')),
     path('', views.index, name='home'),
+
+    # Rest Framework URLS
+    path('api/blog/', include('Blog.api.urls')),
+    path('api/accounts/', include('Login.api.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
