@@ -30,17 +30,26 @@ class Blog(models.Model):
     def get_likes(self):
         return self.blog_like.count()
 
+    def get_total_comments(self):
+        return self.blog_comment.count()
+
     class Meta:
         ordering = ('-publish_date',)
 
 class Comment(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='blog_comment')
-    commentor = models.ForeignKey(User, on_delete=CASCADE, related_name='commentor')
+    commentor = models.ForeignKey(User, on_delete=CASCADE, related_name='comments')
     comment = models.TextField(max_length=1000, verbose_name='Write a comment..')
     comment_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.comment
+
+    def get_likes(self):
+        return self.comment_like.count()
+
+    def get_likers(self):
+        return [like.liker for like in self.comment_like.all()]
 
     class Meta:
         ordering = ('-comment_date',)
