@@ -30,10 +30,20 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['pk', 'username', 'first_name', 'last_name', 'email']
+        fields = ['username', 'first_name', 'last_name', 'email']
+        extra_kwargs = {
+            'username': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+            'email': {'required': False},
+        }
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['pk', 'bio', 'profile_pic']
+        fields = ['bio', 'profile_pic']
+        extra_kwargs = {
+            'bio': {'required': False},
+            'profile_pic': {'required': False},
+        }

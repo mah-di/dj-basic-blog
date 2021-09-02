@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from DjangoBlog.apps.custom_pagination import CustomPagination
 
-from ..models import Blog, BlogLike, Comment
+from ..models import Blog, BlogLike, Comment, CommentLike
 from .serializers import BlogSerializer, CommentSerializer, SingleBlogSerializer
 
 
@@ -137,6 +137,7 @@ def blog_like_unlike_api(request, slug):
             if liked:
                 data['response'] = 'success'
                 data['success'] = 'blog liked'
+                data['liked'] = True
                 state = status.HTTP_200_OK
             else:
                 data['response'] = 'error'
@@ -148,11 +149,11 @@ def blog_like_unlike_api(request, slug):
             state = status.HTTP_400_BAD_REQUEST
 
     elif request.method == 'DELETE':
-        unliked = BlogLike.objects.filter(blog=blog, liker=user)
+        unliked = BlogLike.objects.filter(blog=blog, liker=user).delete()
         if unliked:
-            unliked.delete()
             data['response'] = 'success'
             data['success'] = 'blog unliked'
+            data['liked'] = False
             state = status.HTTP_200_OK
         else:
             data['response'] = 'error'
@@ -242,4 +243,45 @@ def delete_comment_api(request, pk):
         data['errors'] = "you don't have permission to perform this action"
         state = status.HTTP_401_UNAUTHORIZED
 
+    return Response(data=data, status=state)
+
+
+
+@api_view(['POST', 'DELETE'])
+def comment_like_unlike_api(request, pk):
+    try:
+        comment = Comment.objects.get(pk=pk)
+    except Comment.DoesNotExist:
+        return Response(data={'response': 'error', 'errors': "invalid request, comment object doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+
+    user = request.user
+    data = {}
+    if request.method == 'POST':
+        if not request.data['liked']:
+            like = CommentLike.objects.create(comment=comment, liker=user)
+            if like:
+                data['response'] = 'success'
+                data['success'] = 'comment liked'
+                data['liked'] = True
+                state = status.HTTP_201_CREATED
+            else:
+                data['response'] = 'error'
+                data['errors'] = 'unexpected error occured'
+                state = status.HTTP_500_INTERNAL_SERVER_ERROR
+        else:
+            data['response'] = 'error'
+            data['errors'] = 'comment already liked'
+            state = status.HTTP_201_CREATED
+    elif request.method == 'DELETE':
+        unlike = CommentLike.objects.filter(comment=comment, liker=user).delete()
+        if unlike:
+            data['response'] = 'success'
+            data['success'] = 'comment unliked'
+            data['liked'] = False
+            state = status.HTTP_200_OK
+        else:
+            data['response'] = 'error'
+            data['errors'] = 'unexpected error occured'
+            state = status.HTTP_400_BAD_REQUEST
+    
     return Response(data=data, status=state)
