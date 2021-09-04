@@ -51,7 +51,7 @@ There is a step by step breakdown of how to get this project running on your loc
 
     method allowed: GET
     authorization: No
-    response: Details of a user
+    response: Returns details of a user
   </dd>
 </dl>
 
@@ -71,7 +71,7 @@ There is a step by step breakdown of how to get this project running on your loc
 
     method allowed: GET
     authorization: No
-    response: List of blog posts
+    response: Returns list of blog posts
   </dd>
 </dl>
 
@@ -91,7 +91,7 @@ There is a step by step breakdown of how to get this project running on your loc
 
     method allowed: GET
     authorization: No
-    response: A single post
+    response: Returns a single post
   </dd>
 </dl>
 
