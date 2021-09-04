@@ -5,11 +5,11 @@ A basic blogsite built with the popular Python web framework, Django.
 ## Introduction
 This is a basic blog with the most primary features, like creating new blog posts, updating/deleting/viewing them, commenting on blog posts, liking/unliking blog posts and comments. This is my first project built with Django. I built it mainly for practicing purposes and also for trying out new technologies/features I learn by implementing them.
 
-I used Django for the backend as you've probably already guessed and the Django template engine and the default SQLite for database. I also created REST API for this project with django-rest-framework or DRF.
+I used Django for the backend as you've probably already guessed and the Django template engine for the frontend and the default SQLite for database. I also created REST API for this project with django-rest-framework or DRF.
 
 
 ## Getting Started
-There is a step by step breakdown of how to get this project running on your local machine:
+Here is a step by step breakdown of how to get this project running on your local machine:
 - If you wish to download the source files simply click on the **Code** button and select "Download ZIP". After download is complete unzip it in your desired location.
 - If you want to clone the repo, navigate to the directory where you want to have the repo, open Git Bash and run `git clone https://github.com/mah-di/dj-basic-blog.git`.
 - Create a virtual environment and activate the environment.
